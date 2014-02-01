@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/alarm_decoder'
+require 'prowl'
+
+notified = false
+
+AlarmDecoder.watch do |status|
+  if (status["ARMED HOME"] || status["ARMED AWAY"]) && !notified
+    type = status["ARMED HOME"] ? "Home" : "Away"
+    notified = true
+    Prowl.add(
+      :apikey => ENV['PROWL_API_KEY'],
+      :application => "House Security",
+      :event => "Armed",
+      :description => type,
+      :priority => 2
+    )
+  else
+    notified = false
+  end
+end

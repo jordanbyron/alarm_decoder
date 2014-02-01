@@ -1,0 +1,16 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    highline (1.6.20)
+    prowl (0.1.3)
+    redis (3.0.7)
+    serialport (1.3.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  highline
+  prowl
+  redis
+  serialport

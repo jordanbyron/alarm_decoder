@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/alarm_decoder'
+require 'highline/import'
+
+keycode = ask("What's the keycode?") { |q| q.echo = "x" }
+
+loop do
+  choose do |menu|
+    menu.layout = :menu_only
+
+    menu.shell  = true
+
+    menu.choice(:off, "Off") do |command, details|
+      AlarmDecoder.write "#{keycode}1"
+    end
+    menu.choice(:away, "Arm Away") do |command, details|
+      AlarmDecoder.write "#{keycode}2"
+    end
+    menu.choice(:stay, "Arm Stay") do |command, details|
+      AlarmDecoder.write "#{keycode}3"
+    end
+    menu.choice(:chime, "Chime") do |command, details|
+      AlarmDecoder.write "#{keycode}9"
+    end
+    menu.choice(:quit, "Exit program.") { exit }
+  end
+end
