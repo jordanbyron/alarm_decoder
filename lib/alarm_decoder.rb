@@ -2,6 +2,7 @@ require 'serialport'
 require 'redis'
 require 'thread'
 require 'json'
+require 'yaml'
 
 module AlarmDecoder
   PORT      = "/dev/tty.usbserial-A1018WSP"
@@ -53,7 +54,11 @@ module AlarmDecoder
 
   def self.parse_message(raw_message)
     return unless raw_message[/\[/]
-    bit_field = raw_message.split(',').first.gsub(/\[|\]/, '').chars.map(&:to_i)
+    split_message = raw_message.split(',')
+    bit_field = split_message[0].gsub(/\[|\]/, '').chars.map(&:to_i)
+    zone = split_message[1].to_i
+    zone_name = config.fetch("zones", {})[zone]
+
     {
       "READY"          => bit_field[0] == 1,
       "ARMED AWAY"     => bit_field[1] == 1,
@@ -61,7 +66,15 @@ module AlarmDecoder
       "ALARM OCCURED"  => bit_field[10] == 1,
       "ALARM SOUNDING" => bit_field[11] == 1,
       "ARMED INSTANT"  => bit_field[13] == 1,
-      "PERIMETER ONLY" => bit_field[16] == 1
+      "FIRE"           => bit_field[14] == 1,
+      "ZONE ISSUE"     => bit_field[15] == 1,
+      "PERIMETER ONLY" => bit_field[16] == 1,
+      'zone_number'    => zone,
+      'zone_name'      => zone_name
     }
+  end
+
+  def self.config
+    @config ||= YAML.load_file(File.join(__dir__, '../.alarm_decoder.yml')) || {}
   end
 end
