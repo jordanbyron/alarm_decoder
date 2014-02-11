@@ -8,9 +8,9 @@ notified = false
 
 Mail.defaults do
   delivery_method :smtp,
-    address:  ENV['SMTP_ADDRESS'],
-    username: ENV['SMTP_USERNAME'],
-    password: ENV['SMTP_PASSWORD']
+    address:   ENV['SMTP_ADDRESS'],
+    user_name: ENV['SMTP_USERNAME'],
+    password:  ENV['SMTP_PASSWORD']
 end
 
 AlarmDecoder.watch do |status|
