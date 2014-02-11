@@ -6,16 +6,17 @@ require 'prowl'
 notified = false
 
 AlarmDecoder.watch do |status|
-  if (status["ARMED HOME"] || status["ARMED AWAY"]) && !notified
-    type = status["ARMED HOME"] ? "Home" : "Away"
-    notified = true
+  if status["ALARM SOUNDING"] || status["FIRE"]
+    type = status["FIRE"] ? "Fire" : "Alarm"
+    zone = status["zone_name"]
     Prowl.add(
       :apikey => ENV['PROWL_API_KEY'],
       :application => "House Security",
-      :event => "Armed",
-      :description => type,
+      :event => type,
+      :description => zone,
       :priority => 2
-    )
+    ) unless notified
+    notified = true
   else
     notified = false
   end
