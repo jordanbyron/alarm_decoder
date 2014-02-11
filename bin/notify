@@ -2,20 +2,38 @@
 
 require_relative '../lib/alarm_decoder'
 require 'prowl'
+require 'mail'
 
 notified = false
+
+Mail.defaults do
+  delivery_method :smtp,
+    address:  ENV['SMTP_ADDRESS'],
+    username: ENV['SMTP_USERNAME'],
+    password: ENV['SMTP_PASSWORD']
+end
 
 AlarmDecoder.watch do |status|
   if status["ALARM SOUNDING"] || status["FIRE"]
     type = status["FIRE"] ? "Fire" : "Alarm"
     zone = status["zone_name"]
-    Prowl.add(
-      :apikey => ENV['PROWL_API_KEY'],
-      :application => "House Security",
-      :event => type,
-      :description => zone,
-      :priority => 2
-    ) unless notified
+
+    unless notified
+      Prowl.add(
+        :apikey => ENV['PROWL_API_KEY'],
+        :application => "House Security",
+        :event => type,
+        :description => zone,
+        :priority => 2
+      )
+
+      Mail.deliver do
+        from     ENV['SMTP_USERNAME']
+        to       ENV['NOTIFY_EMAILS'].split(',')
+        subject  'House Security'
+        body     "#{type} in #{zone}"
+      end
+    end
     notified = true
   else
     notified = false
