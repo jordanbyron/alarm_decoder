@@ -23,6 +23,10 @@ loop do
     menu.choice(:chime, "Chime") do |command, details|
       AlarmDecoder.write "#{keycode}9"
     end
+    menu.choice(:simulate_alarm, "Simulate Alarm") do |command, details|
+      AlarmDecoder.redis.publish 'alarm_decoder',
+        {"ALARM SOUNDING" => true, "zone_name" => "Test from console"}.to_json
+    end
     menu.choice(:quit, "Exit program.") { exit }
   end
 end
