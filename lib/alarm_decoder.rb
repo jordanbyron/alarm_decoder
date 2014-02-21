@@ -18,12 +18,20 @@ module AlarmDecoder
 
     SerialPort.open(PORT, "baud" => BAUD, "data_bits" => DATA_BITS) do |sp|
       write_thread = Thread.new do
-        redis.subscribe 'alarm_decoder_write' do |on|
-          on.message do |channel, message|
-            sp.puts message
+        begin
+          write_redis = Redis.new
+          write_redis.subscribe 'alarm_decoder_write' do |on|
+            on.message do |channel, message|
+              sp.puts message
+            end
           end
+        rescue Redis::BaseConnectionError => error
+          puts "Write Thread: #{error}, retrying in 1s"
+          sleep 1
+          retry
         end
       end
+
       while (i = sp.gets.chomp) && !interrupted do
         puts i
         if message = parse_message(i)
