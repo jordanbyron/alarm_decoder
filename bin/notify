@@ -18,8 +18,8 @@ Mail.defaults do
 end
 
 AlarmDecoder.watch do |status|
-  if status["ALARM SOUNDING"] || status["FIRE"]
-    type = status["FIRE"] ? "Fire" : "Alarm"
+  if status["alarm_sounding"] || status["fire"]
+    type = status["fire"] ? "Fire" : "Alarm"
     zone = status["zone_name"]
 
     unless notified
