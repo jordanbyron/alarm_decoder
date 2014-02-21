@@ -1,1 +1,3 @@
 .alarm_decoder.yml
+config/*.god
+log/
