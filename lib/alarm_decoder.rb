@@ -9,11 +9,7 @@ module AlarmDecoder
   BAUD      = 115200
   DATA_BITS = 8
 
-  def self.redis
-    Redis.new
-  end
-
-  def self.listen
+  def self.listen(redis = Redis.new)
     interrupted = false
     trap("INT") do
       interrupted = true
@@ -38,15 +34,19 @@ module AlarmDecoder
     end
   end
 
-  def self.watch
+  def self.watch(redis = Redis.new)
     redis.subscribe 'alarm_decoder' do |on|
       on.message do |channel, message|
         yield JSON.parse(message)
       end
     end
+  rescue Redis::BaseConnectionError => error
+    puts "#{error}, retrying in 1s"
+    sleep 1
+    retry
   end
 
-  def self.write(message)
+  def self.write(message, redis = Redis.new)
     redis.publish 'alarm_decoder_write', message
   end
 
@@ -60,17 +60,17 @@ module AlarmDecoder
     zone_name = config.fetch("zones", {})[zone]
 
     {
-      "READY"          => bit_field[0] == 1,
-      "ARMED AWAY"     => bit_field[1] == 1,
-      "ARMED HOME"     => bit_field[2] == 1,
-      "ALARM OCCURED"  => bit_field[10] == 1,
-      "ALARM SOUNDING" => bit_field[11] == 1,
-      "ARMED INSTANT"  => bit_field[13] == 1,
-      "FIRE"           => bit_field[14] == 1,
-      "ZONE ISSUE"     => bit_field[15] == 1,
-      "PERIMETER ONLY" => bit_field[16] == 1,
-      'zone_number'    => zone,
-      'zone_name'      => zone_name
+      ready:          bit_field[0]  == 1,
+      armed_away:     bit_field[1]  == 1,
+      armed_home:     bit_field[2]  == 1,
+      alarm_occured:  bit_field[10] == 1,
+      alarm_sounding: bit_field[11] == 1,
+      armed_instant:  bit_field[13] == 1,
+      fire:           bit_field[14] == 1,
+      zone_issue:     bit_field[15] == 1,
+      perimeter_only: bit_field[16] == 1,
+      zone_number:    zone,
+      zone_name:      zone_name
     }
   end
 
