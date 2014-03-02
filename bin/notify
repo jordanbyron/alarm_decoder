@@ -23,19 +23,27 @@ AlarmDecoder.watch do |status|
     zone = status["zone_name"]
 
     unless notified
-      Prowl.add(
-        :apikey => ENV['PROWL_API_KEY'],
-        :application => "House Security",
-        :event => type,
-        :description => zone,
-        :priority => 2
-      )
+      begin
+        Prowl.add(
+          :apikey => ENV['PROWL_API_KEY'],
+          :application => "House Security",
+          :event => type,
+          :description => zone,
+          :priority => 2
+        )
+      rescue StandardError => e
+        puts "Error sending prowl message: #{e.message}"
+      end
 
-      Mail.deliver do
-        from     ENV['SMTP_USERNAME']
-        to       ENV['NOTIFY_EMAILS'].split(',')
-        subject  'House Security'
-        body     "#{type} in #{zone}"
+      begin
+        Mail.deliver do
+          from     ENV['SMTP_USERNAME']
+          to       ENV['NOTIFY_EMAILS'].split(',')
+          subject  'House Security'
+          body     "#{type} in #{zone}"
+        end
+      rescue StandardError => e
+        puts "Error sending email: #{e.message}"
       end
     end
     notified = true
