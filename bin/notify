@@ -39,7 +39,7 @@ AlarmDecoder.watch do |status|
         Mail.deliver do
           from     ENV['SMTP_USERNAME']
           to       ENV['NOTIFY_EMAILS'].split(',')
-          subject  'House Security'
+          subject  '146 Union Street - Home Security'
           body     "#{type} in #{zone}"
         end
       rescue StandardError => e

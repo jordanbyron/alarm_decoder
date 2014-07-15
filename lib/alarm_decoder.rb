@@ -5,7 +5,7 @@ require 'json'
 require 'yaml'
 
 module AlarmDecoder
-  PORT      = "/dev/tty.usbserial-A1018WSP"
+  PORT      = "/dev/ttyUSB0"
   BAUD      = 115200
   DATA_BITS = 8
 
