@@ -71,12 +71,12 @@ module AlarmDecoder
       ready:          bit_field[0]  == 1,
       armed_away:     bit_field[1]  == 1,
       armed_home:     bit_field[2]  == 1,
-      alarm_occured:  bit_field[10] == 1,
-      alarm_sounding: bit_field[11] == 1,
-      armed_instant:  bit_field[13] == 1,
-      fire:           bit_field[14] == 1,
-      zone_issue:     bit_field[15] == 1,
-      perimeter_only: bit_field[16] == 1,
+      alarm_occured:  bit_field[9] == 1,
+      alarm_sounding: bit_field[10] == 1,
+      armed_instant:  bit_field[12] == 1,
+      fire:           bit_field[13] == 1,
+      zone_issue:     bit_field[14] == 1,
+      perimeter_only: bit_field[15] == 1,
       zone_number:    zone,
       zone_name:      zone_name
     }
