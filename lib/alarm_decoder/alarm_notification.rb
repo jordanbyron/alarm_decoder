@@ -9,7 +9,7 @@ module AlarmDecoder
       @redis  = Redis.new
     end
 
-    attr_reader :status
+    attr_reader :status, :redis
 
     def run
       if alarm?
@@ -48,7 +48,7 @@ module AlarmDecoder
       self.notified = true
     end
 
-    def notify=(notified)
+    def notified=(notified)
       redis.set("alarm-notified", notified)
     end
 
