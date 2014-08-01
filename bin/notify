@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require_relative '../lib/alarm_decoder/alarm_notification'
+require_relative '../lib/alarm_decoder/zone_fault_notification'
 
 Mail.defaults do
   delivery_method :smtp,
@@ -15,4 +16,5 @@ end
 
 AlarmDecoder.watch do |status|
   AlarmDecoder::AlarmNotification.new(status).run
+  AlarmDecoder::ZoneFaultNotification.new(status).run
 end
