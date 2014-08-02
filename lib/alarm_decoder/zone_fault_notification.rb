@@ -48,7 +48,8 @@ module AlarmDecoder
     end
 
     def zone_faulted?
-      !status["ready"] && !(status["alarm_sounding"] || status["fire"])
+      !status["ready"] &&
+      !%w[armed_away armed_stay alarm_sounding fire].any? {|v| status[v] }
     end
 
     def zone
