@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/alarm_decoder'
+
+AlarmDecoder.watch do |status|
+  if status['message'][/Press \* Key/]
+    AlarmDecoder.write("*")
+    puts "* Key sent"
+  end
+end

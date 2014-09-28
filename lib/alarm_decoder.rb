@@ -16,7 +16,7 @@ module AlarmDecoder
       puts "Quitting"
     end
 
-    SerialPort.open(PORT, "baud" => BAUD, "data_bits" => DATA_BITS) do |sp|
+    SerialPort.open(PORT, "baud" => BAUD) do |sp|
       write_thread = Thread.new do
         begin
           write_redis = Redis.new
@@ -78,7 +78,8 @@ module AlarmDecoder
       zone_issue:     bit_field[14] == 1,
       perimeter_only: bit_field[15] == 1,
       zone_number:    zone,
-      zone_name:      zone_name
+      zone_name:      zone_name,
+      message:        split_message.last
     }
   end
 
