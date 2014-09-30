@@ -3,7 +3,7 @@
 require_relative '../lib/alarm_decoder'
 
 AlarmDecoder.watch do |status|
-  if status['message'][/Press \* Key/]
+  if status['display_message'][/Press \* Key/]
     AlarmDecoder.write("*")
     puts "* Key sent"
   end

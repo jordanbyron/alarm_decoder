@@ -6,3 +6,10 @@ rescue LoadError
 end
 
 Bundler::GemHelper.install_tasks
+
+task :spec do
+  $LOAD_PATH.unshift('spec')
+  Dir.glob('./spec/**/*_spec.rb') { |f| require f }
+end
+
+task :default => [:spec]

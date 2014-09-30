@@ -19,4 +19,6 @@ Gem::Specification.new do |s|
   s.add_dependency "redis", ">= 3.0.7"
   s.add_dependency "highline", ">= 1.6.20"
   s.add_dependency "mail"
+
+  s.add_development_dependency "minitest", ">= 5.4.2", "~> 5.4.0"
 end

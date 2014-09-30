@@ -2,12 +2,12 @@ require 'serialport'
 require 'redis'
 require 'thread'
 require 'json'
-require 'yaml'
+
+require_relative 'alarm_decoder/status_parser'
 
 module AlarmDecoder
-  PORT      = "/dev/ttyUSB0"
-  BAUD      = 115200
-  DATA_BITS = 8
+  PORT = ENV['ALARM_DECODER_PORT']
+  BAUD = ENV['ALARM_DECODER_BAUD'] || 115200
 
   def self.listen(redis = Redis.new)
     interrupted = false
@@ -17,6 +17,9 @@ module AlarmDecoder
     end
 
     SerialPort.open(PORT, "baud" => BAUD) do |sp|
+
+      # Write Thread
+      #
       write_thread = Thread.new do
         begin
           write_redis = Redis.new
@@ -32,10 +35,12 @@ module AlarmDecoder
         end
       end
 
+      # Read Loop
+      #
       while (i = sp.gets.chomp) && !interrupted do
         puts i
-        if message = parse_message(i)
-          redis.publish 'alarm_decoder', message.to_json
+        if status = StatusParser.new(i).status
+          redis.publish 'alarm_decoder', status.to_json
         end
       end
       write_thread.kill
@@ -56,34 +61,5 @@ module AlarmDecoder
 
   def self.write(message, redis = Redis.new)
     redis.publish 'alarm_decoder_write', message
-  end
-
-  private
-
-  def self.parse_message(raw_message)
-    return unless raw_message[/\[/]
-    split_message = raw_message.split(',')
-    bit_field = split_message[0].gsub(/\[|\]/, '').chars.map(&:to_i)
-    zone = split_message[1].to_i
-    zone_name = config.fetch("zones", {})[zone]
-
-    {
-      ready:          bit_field[0]  == 1,
-      armed_away:     bit_field[1]  == 1,
-      armed_home:     bit_field[2]  == 1,
-      alarm_occured:  bit_field[9] == 1,
-      alarm_sounding: bit_field[10] == 1,
-      armed_instant:  bit_field[12] == 1,
-      fire:           bit_field[13] == 1,
-      zone_issue:     bit_field[14] == 1,
-      perimeter_only: bit_field[15] == 1,
-      zone_number:    zone,
-      zone_name:      zone_name,
-      message:        split_message.last
-    }
-  end
-
-  def self.config
-    @config ||= YAML.load_file(File.join(__dir__, '../.alarm_decoder.yml')) || {}
   end
 end
