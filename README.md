@@ -21,7 +21,7 @@ alarm decoder box and various services which act on the alarm. A redis server
 will need to be running for the libary to work.
 
 To start listening for messages, launch `bin/listen PORT` specifying the
-appropriate port. For more options / help run `bin/lisen -h`. This will need to
+appropriate port. For more options / help run `bin/listen -h`. This will need to
 be run in the background for any message updates or writes to occur.
 
 ## Reading and writing messages
@@ -38,20 +38,20 @@ end
 
 The following states are reported and parsed:
 
-- ready: Indicates if the panel is READY
-- armed_away: Indicates if the panel is ARMED AWAY
-- armed_home: Indicates if the panel is ARMED HOME
-- alarm_occurred: Indicates that an alarm has occurred. This is sticky and will
-  be cleared after a second disarm.
-- alarm_sounding: Indicates that an alarm is currently sounding. This is cleared
-  after the first disarm.
-- armed_instant: Indicates that entry delay is off (ARMED INSTANT/MAX)
-- fire: Indicates that there is a fire
-- zone_issue: Indicates an issue with a zone
-- perimeter_only: Indicates that the panel is only watching the perimeter (ARMED
-  STAY/NIGHT)
-- zone_number: This number specifies which zone is affected by the message
-- zone_name: Optional human friendly name for the zone_number. See the
+- `ready`: Indicates if the panel is READY
+- `armed_away`: Indicates if the panel is ARMED AWAY
+- `armed_home`: Indicates if the panel is ARMED HOME
+- `alarm_occurred`: Indicates that an alarm has occurred. This is sticky and
+  will be cleared after a second disarm.
+- `alarm_sounding`: Indicates that an alarm is currently sounding. This is
+  cleared after the first disarm.
+- `armed_instant`: Indicates that entry delay is off (ARMED INSTANT/MAX)
+- `fire`: Indicates that there is a fire
+- `zone_issue`: Indicates an issue with a zone
+- `perimeter_only`: Indicates that the panel is only watching the perimeter
+  (ARMED STAY/NIGHT)
+- `zone_number`: This number specifies which zone is affected by the message
+- `zone_name`: Optional human friendly name for the zone_number. See the
   Configuration section above for more details.
 
 For additional information see the official protocol docs:
@@ -69,9 +69,9 @@ AlarmDecoder.write("1234")
 
 ### bin/idle
 
-Watches the display message for "Press * Key" and then sends the * key.
-This ensures zone_name and zone_number always reflect which zone is currently
-faulted.
+Watches the display message for `Press * Key` and then sends the `*` key.
+This ensures `zone_name` and `zone_number` always reflect which zone is
+currently faulted.
 
 ### bin/console
 
@@ -80,7 +80,7 @@ including sending a test alarm for exercising services built around AlarmDecoder
 
 ### bin/watch
 
-Prints the parsed status updates from the alarm to STDOUT
+Prints the parsed status updates from the alarm to `STDOUT`
 
 ### bin/notify
 
