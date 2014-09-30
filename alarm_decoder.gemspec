@@ -21,4 +21,6 @@ Gem::Specification.new do |s|
   s.add_dependency "mail"
 
   s.add_development_dependency "minitest", ">= 5.4.2", "~> 5.4.0"
+  s.add_development_dependency "minitest-stub_any_instance"
+  s.add_development_dependency "pry"
 end

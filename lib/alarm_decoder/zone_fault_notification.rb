@@ -3,14 +3,16 @@ require 'prowl'
 
 module AlarmDecoder
   class ZoneFaultNotification
-    def initialize(status)
-      @status = status
+    def initialize(config)
+      @config = config
       @redis  = Redis.new
     end
 
-    attr_reader :status, :redis
+    attr_reader :status, :redis, :config
 
-    def run
+    def run(status)
+      @status = status
+
       if notifications_enabled? && zone_faulted?
         notify unless notification_sent?
       else
@@ -21,15 +23,17 @@ module AlarmDecoder
     private
 
     def notify
-      Prowl.add(
-        :apikey => ENV['PROWL_API_KEY'],
-        :application => "House Security",
-        :event => "Zone Fault",
-        :description => zone,
-        :priority => 0
-      )
+      config['prowl_keys'].each do |key|
+        Prowl.add(
+          apikey:      key,
+          application: "House Security",
+          event:       "Zone Fault",
+          description: zone,
+          priority:    0
+        )
+      end
 
-    self.notified = true
+      self.notified = true
 
     rescue StandardError => e
       puts "Error sending prowl message: #{e.message}"
@@ -44,7 +48,7 @@ module AlarmDecoder
     end
 
     def notifications_enabled?
-      redis.get("zone-fault-notifications-enabled") == "true"
+      config["enabled"] == true
     end
 
     def zone_faulted?

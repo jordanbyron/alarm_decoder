@@ -1,20 +1,24 @@
 #!/usr/bin/env ruby
 
+require 'yaml'
 require_relative '../lib/alarm_decoder/alarm_notification'
 require_relative '../lib/alarm_decoder/zone_fault_notification'
 
+config = YAML.load_file(ARGV.first) if ARGV.first
+
 Mail.defaults do
   delivery_method :smtp,
-    address:              ENV['SMTP_ADDRESS'],
-    user_name:            ENV['SMTP_USERNAME'],
-    password:             ENV['SMTP_PASSWORD'],
-    domain:               ENV['SMTP_DOMAIN'],
-    authentication:       ENV['SMTP_AUTHENTICATION'],
-    port:                 ENV['SMTP_PORT'],
-    openssl_verify_mode:  ENV['SMTP_SSL_VERIFY_MODE']
+    address:              config['smtp']['address'],
+    user_name:            config['smtp']['username'],
+    password:             config['smtp']['password'],
+    domain:               config['smtp']['domain'],
+    authentication:       config['smtp']['authentication'],
+    port:                 config['smtp']['port'],
+    openssl_verify_mode:  config['smtp']['ssl_verify_mode']
 end
 
 AlarmDecoder.watch do |status|
-  AlarmDecoder::AlarmNotification.new(status).run
-  AlarmDecoder::ZoneFaultNotification.new(status).run
+  AlarmDecoder::AlarmNotification.new(config['alarm_notification']).run(status)
+  AlarmDecoder::ZoneFaultNotification.new(config['zone_fault_notification']).
+    run(status)
 end

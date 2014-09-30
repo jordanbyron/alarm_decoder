@@ -4,56 +4,64 @@ require 'mail'
 
 module AlarmDecoder
   class AlarmNotification
-    def initialize(status)
-      @status = status
+    def initialize(config)
+      @config = config
       @redis  = Redis.new
     end
 
-    attr_reader :status, :redis
+    attr_reader :status, :redis, :config
 
-    def run
+    def run(status)
+      @status = status
+
       if alarm?
-        notify unless notification_sent?
+        notify
       else
-        self.notified = false
+        redis.del "alarm-notified-prowl"
+        redis.del "alarm-notified-email"
       end
     end
 
     private
 
     def notify
-      begin
+      (config['prowl'] || []).each do |key|
+        next if notification_sent?(:prowl, key)
+
         Prowl.add(
-          :apikey => ENV['PROWL_API_KEY'],
-          :application => "House Security",
-          :event => type,
-          :description => zone,
-          :priority => 2
+          apikey:      key,
+          application: "House Security",
+          event:       type,
+          description: zone,
+          priority:    2
         )
-      rescue StandardError => e
-        puts "Error sending prowl message: #{e.message}"
+
+        notified :prowl, key
       end
 
-      begin
+      (config['emails'] || []).each do |email|
+        next if notification_sent?(:email, email)
+
+        from = config['from_address']
+        body = "#{type} in #{zone}"
+
         Mail.deliver do
-          from     ENV['SMTP_USERNAME']
-          to       ENV['NOTIFY_EMAILS'].split(',')
+          from     from
+          to       email
           subject  '146 Union Street - Home Security'
-          body     "#{type} in #{zone}"
+          body     body
         end
-      rescue StandardError => e
-        puts "Error sending email: #{e.message}"
+
+        notified :email, email
       end
-
-      self.notified = true
     end
 
-    def notified=(notified)
-      redis.set("alarm-notified", notified)
+    def notified(type, key)
+      redis.rpush("alarm-notified-#{type}", key)
     end
 
-    def notification_sent?
-      redis.get("alarm-notified") == "true"
+    def notification_sent?(type, key)
+      redis.lrange("alarm-notified-#{type}", 0, -1).include?(key.to_s)
     end
 
     def alarm?
