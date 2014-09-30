@@ -11,7 +11,7 @@ describe AlarmDecoder::StatusParser do
     parser.status[:ready].must_equal true
     parser.status[:armed_away].must_equal false
     parser.status[:armed_home].must_equal false
-    parser.status[:alarm_occured].must_equal false
+    parser.status[:alarm_occurred].must_equal false
     parser.status[:alarm_sounding].must_equal false
     parser.status[:armed_instant].must_equal false
     parser.status[:fire].must_equal false
@@ -23,13 +23,13 @@ describe AlarmDecoder::StatusParser do
     parser.status[:zone_number].must_equal 1
   end
 
-  it 'parses the zone name if ALARM_DECODER_CONFIG is present' do
-    ENV['ALARM_DECODER_CONFIG'] = File.join(__dir__, '../support/config.yml')
+  it 'parses the zone name if list of names is present' do
+    AlarmDecoder.config["zones"] = {1 => "Front Door"}
     parser.status[:zone_name].must_equal "Front Door"
   end
 
-  it 'omits the zone name if ALARM_DECODER_CONFIG is missing' do
-    ENV['ALARM_DECODER_CONFIG'] = nil
+  it 'omits the zone name if no zone names are loaded' do
+    AlarmDecoder.config["zones"] = {}
     parser.status[:zone_name].must_be_nil
   end
 

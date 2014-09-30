@@ -15,7 +15,7 @@ module AlarmDecoder
         ready:           bit_state(0),
         armed_away:      bit_state(1),
         armed_home:      bit_state(2),
-        alarm_occured:   bit_state(9),
+        alarm_occurred:  bit_state(9),
         alarm_sounding:  bit_state(10),
         armed_instant:   bit_state(12),
         fire:            bit_state(13),
@@ -38,7 +38,7 @@ module AlarmDecoder
     end
 
     def zone_name
-      @zone_name = config.fetch("zones", {})[zone_number]
+      @zone_name = AlarmDecoder.config.fetch("zones", {})[zone_number]
     end
 
     def display_message
@@ -55,13 +55,6 @@ module AlarmDecoder
 
     def bit_state(index)
       bit_field[index] == 1
-    end
-
-    def config
-      @config ||= begin
-        config_file = ENV['ALARM_DECODER_CONFIG']
-        config_file ? YAML.load_file(config_file) : {}
-      end
     end
   end
 end

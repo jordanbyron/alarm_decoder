@@ -6,17 +6,20 @@ require 'json'
 require_relative 'alarm_decoder/status_parser'
 
 module AlarmDecoder
-  PORT = ENV['ALARM_DECODER_PORT']
-  BAUD = ENV['ALARM_DECODER_BAUD'] || 115200
+  extend self
 
-  def self.listen(redis = Redis.new)
+  attr_accessor :config
+
+  @config ||= {}
+
+  def listen(redis = Redis.new)
     interrupted = false
     trap("INT") do
       interrupted = true
       puts "Quitting"
     end
 
-    SerialPort.open(PORT, "baud" => BAUD) do |sp|
+    SerialPort.open(config["port"], "baud" => config["baud"]) do |sp|
 
       # Write Thread
       #
@@ -47,7 +50,7 @@ module AlarmDecoder
     end
   end
 
-  def self.watch(redis = Redis.new)
+  def watch(redis = Redis.new)
     redis.subscribe 'alarm_decoder' do |on|
       on.message do |channel, message|
         yield JSON.parse(message)
@@ -59,7 +62,7 @@ module AlarmDecoder
     retry
   end
 
-  def self.write(message, redis = Redis.new)
+  def write(message, redis = Redis.new)
     redis.publish 'alarm_decoder_write', message
   end
 end
