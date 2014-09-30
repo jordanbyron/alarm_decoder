@@ -4,21 +4,23 @@ require_relative '../lib/alarm_decoder'
 require 'optparse'
 
 optparse = OptionParser.new do |opts|
-  opts.banner = "Usage: listen [options] port"
+  opts.banner = 'Usage: listen [options] port'
 
-  opts.on( '-c', '--configuration_file', 'Configuration file', String,
-    'YAML configuration file with zone names. Optional') do |file|
+  opts.on('-c', '--configuration_file FILE_PATH',
+          'YAML configuration file with zone names. Optional') do |file|
     AlarmDecoder.config = YAML.load_file(file)
   end
 
-  AlarmDecoder.config["baud"] ||= 8
-
-  opts.on( '-b', '--baud [RATE]', 'Baud rate', Integer,
-    'Baud rate for serial connection. Default 8' ) do |rate|
-    AlarmDecoder.config["baud"] = baud
+  opts.on('-b', '--baud RATE',
+          'Baud rate for serial connection. Default 115200', Integer) do |rate|
+    AlarmDecoder.config['baud'] = rate
   end
 
-  opts.on( '-h', '--help', 'Display this screen' ) do
+  opts.on('-v', '--[no-]verbose', 'Run verbosely') do |v|
+    AlarmDecoder.config['verbose'] = v
+  end
+
+  opts.on('-h', '--help', 'Display this screen') do
     puts opts
     exit
   end
@@ -26,11 +28,14 @@ end
 
 optparse.parse!
 
-AlarmDecoder.config["port"] ||= ARGV.first.to_i unless ARGV.first.nil?
+AlarmDecoder.config['baud'] ||= 115200
+AlarmDecoder.config['port'] ||= ARGV.first
 
-unless AlarmDecoder.config["port"]
+unless AlarmDecoder.config['port']
   puts "'port' required. Run listen -h for usage guide"
   exit
 end
+
+puts AlarmDecoder.config if AlarmDecoder.config['verbose']
 
 AlarmDecoder.listen
