@@ -19,14 +19,17 @@ module AlarmDecoder
       else
         redis.del "alarm-notified-prowl"
         redis.del "alarm-notified-email"
+        redis.del "alarm-at"
       end
     end
 
     private
 
     def notify
-      (config['prowl'] || []).each do |key|
-        next if notification_sent?(:prowl, key)
+      redis.set("alarm-at", Time.now.to_i) if alarm_duration == 0
+
+      (config['prowl'] || []).each do |key, delay_seconds|
+        next if notification_sent?(:prowl, key) || delay?(delay_seconds)
 
         Prowl.add(
           apikey:      key,
@@ -39,8 +42,8 @@ module AlarmDecoder
         notified :prowl, key
       end
 
-      (config['emails'] || []).each do |email|
-        next if notification_sent?(:email, email)
+      (config['emails'] || []).each do |email, delay_seconds|
+        next if notification_sent?(:email, email) || delay?(delay_seconds)
 
         from = config['from_address']
         body = "#{type} in #{zone}"
@@ -74,6 +77,16 @@ module AlarmDecoder
 
     def zone
       @zone ||= status["zone_name"]
+    end
+
+    def alarm_duration
+      alarm_at = redis.get("alarm-at")
+
+      alarm_at ? Time.now - Time.at(alarm_at.to_i) : 0
+    end
+
+    def delay?(delay_seconds)
+      delay_seconds && alarm_duration < delay_seconds
     end
   end
 end

@@ -85,8 +85,7 @@ Prints the parsed status updates from the alarm to `STDOUT`
 ### bin/notify
 
 Sends notifications via Prowl / Mail when an alarm is triggered or zone is
-faulted. Uses environment variables for configuration. See source code for more
-details / usage information.
+faulted. Uses a YAML file for configuration.
 
 ## License
 

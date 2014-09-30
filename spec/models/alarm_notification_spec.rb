@@ -5,11 +5,53 @@ describe AlarmDecoder::AlarmNotification do
   let(:redis)        { Redis.new }
   let(:notification) { AlarmDecoder::AlarmNotification.new(@config) }
 
+  before do
+    redis.del "alarm-notified-prowl"
+    redis.del "alarm-notified-email"
+  end
+
+  describe "delayed notifications" do
+    it 'delays notifications when delay value is present' do
+      @config = {
+        'prowl' => {
+          '1234' => 0,
+          '4567'  => 60 # Delay 1 minute (60 seconds)
+      }}
+
+      Prowl.stub_any_instance(:perform, 200) do
+        notification.run("alarm_sounding" => true)
+      end
+
+      redis.lrange("alarm-notified-prowl", 0, -1).wont_include '4567'
+      redis.lrange("alarm-notified-prowl", 0, -1).must_include '1234'
+
+      # Fast forward 1 minute
+      #
+      redis.set("alarm-at", (Time.now - 61).to_i)
+
+      Prowl.stub_any_instance(:perform, 200) do
+        notification.run("alarm_sounding" => true)
+      end
+
+      redis.lrange("alarm-notified-prowl", 0, -1).must_include '4567'
+    end
+
+    it 'clears the alarm time after the alarm is turned off' do
+      @config = {}
+
+      notification.run("alarm_sounding" => true)
+
+      redis.get("alarm-at").wont_equal nil
+
+      notification.run({})
+
+      redis.get("alarm-at").must_equal nil
+    end
+  end
+
   describe "prowl" do
     before do
       @config = { "prowl" => ["1234", "4567"] }
-
-      redis.del "alarm-notified-prowl"
     end
 
     it 'skips prowl notifications when keys missing' do
@@ -79,8 +121,6 @@ describe AlarmDecoder::AlarmNotification do
       }
 
       Mail::TestMailer.deliveries.clear
-
-      redis.del "alarm-notified-email"
     end
 
     it 'sends no emails when no emails specified' do
