@@ -4,6 +4,8 @@ AlarmDecoder
 Redis backed utilities for sending and retrieving messages from an Ademco
 Vista Alarm to Computer interface board (AD2USB / AD2SERIAL).
 
+[![Build Status](https://travis-ci.org/jordanbyron/alarm_decoder.svg?branch=master)](https://travis-ci.org/jordanbyron/alarm_decoder)
+
 ## Configuration
 
 Configuration is done through the `AlarmDecoder.config` hash. Options are as
