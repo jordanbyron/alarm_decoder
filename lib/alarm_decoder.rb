@@ -69,6 +69,6 @@ module AlarmDecoder
   end
 
   def panic!(redis = Redis.new)
-    redis.publish PANIC_KEY
+    write PANIC_KEY, redis
   end
 end
