@@ -8,6 +8,8 @@ require_relative 'alarm_decoder/status_parser'
 module AlarmDecoder
   extend self
 
+  PANIC_KEY = "\u0005" * 3
+
   attr_accessor :config
 
   @config ||= {}
@@ -64,5 +66,9 @@ module AlarmDecoder
 
   def write(message, redis = Redis.new)
     redis.publish 'alarm_decoder_write', message
+  end
+
+  def panic!(redis = Redis.new)
+    redis.publish PANIC_KEY
   end
 end

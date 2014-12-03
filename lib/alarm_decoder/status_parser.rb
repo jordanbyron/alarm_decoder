@@ -23,7 +23,8 @@ module AlarmDecoder
         perimeter_only:  bit_state(15),
         zone_number:     zone_number,
         zone_name:       zone_name,
-        display_message: display_message
+        display_message: display_message,
+        panic:           panic
       }
     end
 
@@ -39,6 +40,10 @@ module AlarmDecoder
 
     def zone_name
       @zone_name = AlarmDecoder.config.fetch("zones", {})[zone_number]
+    end
+
+    def panic
+      alarm_sounding && zone_number == 99
     end
 
     def display_message

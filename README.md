@@ -55,6 +55,7 @@ The following states are reported and parsed:
 - `zone_number`: This number specifies which zone is affected by the message
 - `zone_name`: Optional human friendly name for the zone_number. See the
   Configuration section above for more details.
+- `panic`: Indicates if the alarm is a panic (Guessed from the reported zone 99)
 
 For additional information see the official protocol docs:
 
