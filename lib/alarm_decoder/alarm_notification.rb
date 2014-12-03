@@ -86,6 +86,7 @@ module AlarmDecoder
     end
 
     def delay?(delay_seconds)
+      return false if status["panic"] # Notify everyone in a panic situation
       delay_seconds && alarm_duration < delay_seconds
     end
   end
