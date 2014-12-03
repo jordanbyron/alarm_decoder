@@ -27,6 +27,9 @@ loop do
       Redis.new.publish 'alarm_decoder',
         {alarm_sounding: true, zone_name: "Test from console"}.to_json
     end
+    menu.choice(:panic, "Panic") do |command, details|
+      AlarmDecoder.write "\u0005" * 3
+    end
     menu.choice(:quit, "Exit program.") { exit }
   end
 end
