@@ -16,7 +16,7 @@ module AlarmDecoder
         armed_away:      bit_state(1),
         armed_home:      bit_state(2),
         alarm_occurred:  bit_state(9),
-        alarm_sounding:  bit_state(10),
+        alarm_sounding:  alarm_sounding,
         armed_instant:   bit_state(12),
         fire:            bit_state(13),
         zone_issue:      bit_state(14),
@@ -44,6 +44,10 @@ module AlarmDecoder
 
     def panic
       alarm_sounding && zone_number == 99
+    end
+
+    def alarm_sounding
+      bit_state(10)
     end
 
     def display_message
