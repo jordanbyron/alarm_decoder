@@ -72,7 +72,13 @@ module AlarmDecoder
     end
 
     def type
-      @type ||= status["fire"] ? "Fire" : "Alarm"
+      @type ||= if status["fire"]
+        "Fire"
+      elsif status["panic"]
+        "PANIC"
+      else
+        "Alarm"
+      end
     end
 
     def zone
