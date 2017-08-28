@@ -56,11 +56,11 @@ module AlarmDecoder
     end
 
     def zone_number
-      @zone_name ||= split_status[1].to_i
+      @zone_number ||= split_status[1].to_i
     end
 
     def zone_name
-      @zone_name = AlarmDecoder.config.fetch("zones", {})[zone_number]
+      @zone_name ||= AlarmDecoder.config.fetch("zones", {})[zone_number]
     end
 
     def panic
